@@ -1,0 +1,30 @@
+function signature = findSignature(trace)
+% function  signature = findSignature(trace)
+% Finds the signature of a given trace.
+% 
+% Input
+%   - trace: a timetable containing the data trace to analyze. 
+% Output
+%   - signature: a structure containing the four signature points. 
+%
+%
+% ---------------------------------------------------------------------
+%
+% Copyright (C) 2020 Giacomo Cappon
+%
+% This file is part of I Can Read You Like A Book.
+%
+% ---------------------------------------------------------------------
+
+signature.A.idx = 1;
+signature.A.value = trace.CGM(signature.A.idx);
+
+signature.C.idx = find(trace.CGM == max(trace.CGM),1,'last');
+signature.C.value = trace.CGM(signature.C.idx);
+
+if(signature.C.idx == height(trace))
+    signature.D.idx = signature.C.idx;
+    signature.D.value = signature.C.value;
+else
+    signature.D.idx = find(trace.CGM( == min(trace.CGM),1,'last');
+    
