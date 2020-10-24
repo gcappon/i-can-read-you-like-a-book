@@ -1,5 +1,7 @@
-function readTheBook(data,verbose)
+function [score, flag] = readTheBook(data,verbose,plotMode)
     
+    close all
+
     addpath(genpath('src'));
     
     if(verbose)
@@ -34,6 +36,10 @@ function readTheBook(data,verbose)
     for t = 1:length(traces)
         signatures{t} = findSignature(traces{t});
     end
+    signatures = normalizeSignatures(signatures,traces);
+    signaturesMat = signaturesToMat(signatures);
+    
+    flag = length(signatures) > 30;
     
     if(verbose)
         time = toc;
@@ -51,6 +57,33 @@ function readTheBook(data,verbose)
         time = toc;
         fprintf(['DONE. (Elapsed time ' num2str(time/60) ' min)\n']);
     end
-
+    
+    if(verbose && plotMode)
+        fprintf('Visualizing signatures into clusters...');
+        tic;
+    end
+    
+    if(plotMode)
+        plotClusters(clusters,signatures);
+    end
+    
+    if(verbose && plotMode)
+        time = toc;
+        fprintf(['DONE. (Elapsed time ' num2str(time/60) ' min)\n']);
+    end
+    
+    if(verbose)
+        fprintf('Computing predictability score...');
+        tic;
+    end
+    
+    score = computeRhoScore(signaturesMat, clusters);
+    
+    if(verbose)
+        time = toc;
+        fprintf(['DONE. (Elapsed time ' num2str(time/60) ' min)\n']);
+    end
+    
+    disp(['Patient score: ' num2str(score)]);
 end
 

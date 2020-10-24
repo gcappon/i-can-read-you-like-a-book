@@ -1,5 +1,5 @@
 function traces = findTraces(dataTransformed)
-% function  traces = findTraces(data)
+% function  traces = findTraces(dataTransformed)
 % Finds and returns the portions of data to be later processed and
 % clustered.
 % 

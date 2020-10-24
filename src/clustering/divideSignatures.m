@@ -19,7 +19,7 @@ function clusters = divideSignatures(signatures)
 % ---------------------------------------------------------------------
     
     %Init clusters 
-    clusterNames = {'one','two','three','four','five'};
+    clusterNames = {'one','two','three','four','five','six','seven','eight'};
     for cn = 1:length(clusterNames)
         clusters.(clusterNames{cn}) = [];
     end
@@ -32,45 +32,80 @@ function clusters = divideSignatures(signatures)
         % Cluster 1
         if( signature.A.idx < signature.B.idx && ...
             signature.B.idx < signature.C.idx && ...
-            signature.C.idx < signature.D.idx ) 
+            signature.C.idx < signature.D.idx && ...
+            signature.D.idx < signature.E.idx) 
         
             clusters.one = [clusters.one; s];
             
         end
-    
+        
+        % Cluster 1bis 
+        if( signature.A.idx < signature.B.idx && ...
+            signature.B.idx < signature.C.idx && ...
+            signature.C.idx < signature.D.idx && ...
+            signature.D.idx == signature.E.idx) 
+        
+            clusters.two = [clusters.two; s];
+            
+        end
+        
         % Cluster 2
         if( signature.A.idx == signature.B.idx && ...
             signature.B.idx < signature.C.idx && ...
-            signature.C.idx < signature.D.idx ) 
+            signature.C.idx < signature.D.idx && ...
+            signature.D.idx < signature.E.idx)
         
-            clusters.two = [clusters.two; s];
+            clusters.three = [clusters.three; s];
+            
+        end
+        
+        % Cluster 2bis
+        if( signature.A.idx == signature.B.idx && ...
+            signature.B.idx < signature.C.idx && ...
+            signature.C.idx < signature.D.idx && ...
+            signature.D.idx == signature.E.idx)
+        
+            clusters.four = [clusters.four; s];
             
         end
         
         % Cluster 3
         if( signature.A.idx == signature.B.idx && ...
             signature.B.idx < signature.C.idx && ...
-            signature.C.idx == signature.D.idx ) 
+            signature.C.idx == signature.D.idx && ...
+            signature.D.idx == signature.E.idx) 
         
-            clusters.three = [clusters.three; s];
+            clusters.five = [clusters.five; s];
             
         end
         
         % Cluster 4
         if( signature.A.idx == signature.B.idx && ...
             signature.B.idx == signature.C.idx && ...
-            signature.C.idx < signature.D.idx ) 
+            signature.C.idx < signature.D.idx && ...
+            signature.D.idx < signature.E.idx) 
         
-            clusters.four = [clusters.four; s];
+            clusters.six = [clusters.six; s];
+            
+        end
+        
+        % Cluster 4bis
+        if( signature.A.idx == signature.B.idx && ...
+            signature.B.idx == signature.C.idx && ...
+            signature.C.idx < signature.D.idx && ...
+            signature.D.idx == signature.E.idx) 
+        
+            clusters.seven = [clusters.seven; s];
             
         end
         
         % Cluster 5
         if( signature.A.idx < signature.B.idx && ...
             signature.B.idx < signature.C.idx && ...
-            signature.C.idx == signature.D.idx ) 
+            signature.C.idx == signature.D.idx && ...
+            signature.D.idx == signature.E.idx) 
         
-            clusters.five = [clusters.five; s];
+            clusters.eight = [clusters.eight; s];
             
         end
         

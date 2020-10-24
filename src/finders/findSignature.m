@@ -33,5 +33,9 @@ function signature = findSignature(trace)
     snippet = trace.transCGM(signature.C.idx:end);
     signature.D.idx = find(snippet == min(snippet),1,'last') + signature.C.idx - 1;
     signature.D.value = trace.transCGM(signature.D.idx);
+    
+    %Find E
+    signature.E.idx = length(trace.transCGM);
+    signature.E.value = trace.transCGM(end);
 
 end
