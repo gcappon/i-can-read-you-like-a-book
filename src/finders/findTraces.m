@@ -21,42 +21,57 @@ function traces = findTraces(dataTransformed)
     %Find the mainMealIdxs
     mainMealIdxsAll = find(strcmp(dataTransformed.CHOLabel,'Breakfast') | ...
         strcmp(dataTransformed.CHOLabel,'Lunch') | ...
-        strcmp(dataTransformed.CHOLabel,'Dinner') );
+        strcmp(dataTransformed.CHOLabel,'Dinner') | ...
+        strcmp(dataTransformed.CHOLabel,'Snack') );
     
     
     %Retain mainMealIdxs of days with AT LEAST all three meals logged
-    k = 1;
-    for mmi = 1:length(mainMealIdxsAll)
-        
-        %Select the day of data
-        dayData = dataTransformed( dataTransformed.Time.Year == dataTransformed.Time(mainMealIdxsAll(mmi)).Year & ...
-            dataTransformed.Time.Month == dataTransformed.Time(mainMealIdxsAll(mmi)).Month & ...
-            dataTransformed.Time.Day == dataTransformed.Time(mainMealIdxsAll(mmi)).Day, :);
-        
-        %Check if there are all the main meals in the current day
-        if( any(strcmp(dayData.CHOLabel,'Breakfast')) && ...
-                any(strcmp(dayData.CHOLabel,'Lunch')) && ...
-                any(strcmp(dayData.CHOLabel,'Dinner')) )
-            mainMealIdxs(k) = mainMealIdxsAll(mmi);
-            k = k + 1;
-        end
-        
-    end
+%     k = 1;
+%     for mmi = 1:length(mainMealIdxsAll)
+%         
+%         %Select the day of data
+%         dayData = dataTransformed( dataTransformed.Time.Year == dataTransformed.Time(mainMealIdxsAll(mmi)).Year & ...
+%             dataTransformed.Time.Month == dataTransformed.Time(mainMealIdxsAll(mmi)).Month & ...
+%             dataTransformed.Time.Day == dataTransformed.Time(mainMealIdxsAll(mmi)).Day, :);
+%         
+%         %Check if there are all the main meals in the current day
+%         if( any(strcmp(dayData.CHOLabel,'Breakfast')) && ...
+%                 any(strcmp(dayData.CHOLabel,'Lunch')) && ...
+%                 any(strcmp(dayData.CHOLabel,'Dinner')) )
+%             mainMealIdxs(k) = mainMealIdxsAll(mmi);
+%             k = k + 1;
+%         end
+%         
+%     end
+    mainMealIdxs = mainMealIdxsAll;
     
     %Transpose the result in order to be a column
-    mainMealIdxs = mainMealIdxs';
+    %mainMealIdxs = mainMealIdxs';
     
     %Validate and retain the valid traces
     k = 1;
+    preMealMinutes = 60*.5; 
+    postMealMinutes = 60*2; 
+    
+    traces = cell(0);
     for mmi = 1:length(mainMealIdxs)
         
         %Check if the trace can be selected then validate it, and save it.
-        if( mainMealIdxs(mmi)>12 && mainMealIdxs(mmi) < (height(dataTransformed)-48) )
-            trace = dataTransformed( (mainMealIdxs(mmi) - 12) : (mainMealIdxs(mmi) + 48) , : );
+        if( mainMealIdxs(mmi)>preMealMinutes/5 && mainMealIdxs(mmi) < (height(dataTransformed)-postMealMinutes/5) )
+            trace = dataTransformed( (mainMealIdxs(mmi) - preMealMinutes/5) : (mainMealIdxs(mmi) + postMealMinutes/5) , : );
             
-            if(isTraceValid(trace))
+            if(isTraceValid(trace,preMealMinutes))
                 
-                traces{k} = trace(13:end,:);
+                %Shift the bolus to mealTime
+                bolusIdx = find(strcmp(trace.bolusLabel,trace.CHOLabel(preMealMinutes/5 + 1)));
+                
+                trace.bolus(preMealMinutes/5 + 1) = trace.bolus(bolusIdx);
+                trace.bolusLabel(preMealMinutes/5 + 1) = trace.bolusLabel(bolusIdx);
+                trace.bolus(bolusIdx) = 0;
+                trace.bolusLabel(bolusIdx) = "";
+                
+                %Cut the first part
+                traces{k} = trace((preMealMinutes/5 + 1):end,:);
                 k = k + 1;
                 
             end

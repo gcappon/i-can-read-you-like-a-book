@@ -1,4 +1,4 @@
-function [score, flag] = readTheBook(data,verbose,plotMode)
+function [bcs, wcs, flag] = readTheBook(data,verbose,plotMode)
     
     close all
 
@@ -33,13 +33,12 @@ function [score, flag] = readTheBook(data,verbose,plotMode)
         tic;
     end
     
+    signatures = cell(0);
     for t = 1:length(traces)
         signatures{t} = findSignature(traces{t});
     end
     signatures = normalizeSignatures(signatures,traces);
     signaturesMat = signaturesToMat(signatures);
-    
-    flag = length(signatures) > 30;
     
     if(verbose)
         time = toc;
@@ -63,8 +62,27 @@ function [score, flag] = readTheBook(data,verbose,plotMode)
         tic;
     end
     
+    if(verbose)
+        fprintf('Pruning cluster outliers...');
+        tic;
+    end
+    
+    [signaturesMat,clusters] = pruneClusterOutliers(signaturesMat,clusters);
+    nDays = floor(height(data)/288);
+    flag = size(signaturesMat,1) > nDays; % at least "two" good t per week
+    
+    if(verbose)
+        time = toc;
+        fprintf(['DONE. (Elapsed time ' num2str(time/60) ' min)\n']);
+    end
+    
+    if(verbose && plotMode)
+        fprintf('Visualizing signatures into clusters...');
+        tic;
+    end
+    
     if(plotMode)
-        plotClusters(clusters,signatures);
+        plotClusters(clusters,signaturesMat);
     end
     
     if(verbose && plotMode)
@@ -77,13 +95,13 @@ function [score, flag] = readTheBook(data,verbose,plotMode)
         tic;
     end
     
-    score = computeRhoScore(signaturesMat, clusters);
+    [bcs, wcs] = computeScores(signaturesMat, clusters);
     
     if(verbose)
         time = toc;
         fprintf(['DONE. (Elapsed time ' num2str(time/60) ' min)\n']);
     end
     
-    disp(['Patient score: ' num2str(score)]);
+    disp(['Patient scores --> BC: ' num2str(bcs) ', WC: ' num2str(wcs)]);
 end
 

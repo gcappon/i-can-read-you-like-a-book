@@ -20,7 +20,7 @@ function centroid = computeCentroid(signaturesMat)
     if(size(signaturesMat,1) > 0)
         centroid = mean(signaturesMat,1);
     else
-        centroid = zeros(1,49);
+        centroid = zeros(1,25);
     end
 
 end

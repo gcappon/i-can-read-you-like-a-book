@@ -16,8 +16,8 @@ function signaturesMat = signaturesToMat(signatures)
 % This file is part of I Can Read You Like A Book.
 %
 % ---------------------------------------------------------------------
-
-    signaturesMat = zeros(length(signatures),signatures{1}.E.idx);
+    
+     signaturesMat = [];
     
     for s = 1:length(signatures)
     

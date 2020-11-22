@@ -10,14 +10,14 @@ for p = 1:length(patsID)
     load(fullfile('data','Merged',['ABC' patsID{p}]));
     
     disp(['Scoring ABC' patsID{p} '...']);
-    [scores(p), flags(p)] = readTheBook(data,1,0);
+    [bcs(p), wcs(p), flags(p)] = readTheBook(data,1,0);
     
 end
 
-
-[~, ranks] = sort(scores,'desc');
+scatter(bcs,wcs);
+%[~, ranks] = sort(scores,'desc');
 
 %Rank only valid patients
-ranks = ranks(logical(flags));
+%ranks = ranks(logical(flags));
         
         

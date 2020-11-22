@@ -1,4 +1,4 @@
-function valid = isTraceValid(trace)
+function valid = isTraceValid(trace, preMealMinutes)
 % function  valid = isTraceValid(trace)
 % Says whether or not a given data trace is valid and can be included in 
 % the analysis or not according to several criteria.
@@ -30,28 +30,25 @@ function valid = isTraceValid(trace)
     
     %% Evaluating criteria 
     %Check if the number of nans within the data exceed the criteria
-    if( sum(isnan(trace.transCGM)) > maxNansNumber )
+    if( sum(isnan(trace.CGM)) > maxNansNumber || sum(isnan(trace.transCGM)) > 0 )
         valid = false;
     end
     
-    %Check if other CHO intakes are present before the main meal timestamp
-    if( sum(trace.CHO(1:12)) > 0 )
+    %Check if other CHO intakes are present
+    if( sum(trace.CHO > 0 ) > 1 )
         valid = false;
     end
     
-    %Check if other insulin boluses are present after the main meal timestamp
-    if( sum(trace.bolus(1:12)) > 0 )
+    %Check if the bolus corresponding to the current meal is present
+    bolusIdx = find(strcmp(trace.bolusLabel,trace.CHOLabel(preMealMinutes/5 + 1)), 1);
+    if( isempty(bolusIdx) )
         valid = false;
     end
     
-    %Check if other CHO intakes are present after the main meal timestamp
-    if( sum(trace.CHO(14:end)) > 0 )
+    %Check if other insulin boluses are present
+    if( sum(trace.bolus > 0) > 1 )
         valid = false;
     end
-    
-    %Check if other insulin boluses are present after the main meal timestamp
-    if( sum(trace.bolus(14:end)) > 0 )
-        valid = false;
-    end
+
     
 end

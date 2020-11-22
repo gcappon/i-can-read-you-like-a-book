@@ -1,4 +1,4 @@
-function [bcs, wcs] = computeRhoScore(signaturesMat,clusters)
+function [bcs, wcs] = computeScores(signaturesMat,clusters)
     
     fN = fieldnames(clusters);
     nC = length(fieldnames(clusters));

@@ -5,9 +5,10 @@ function score = computeWithinClusterScore(signaturesMat)
     
     centroid = computeCentroid(signaturesMat);
     
-    score = 0;
+    score = nan;
     
     if(size(signaturesMat,1) > 1)
+        score = 0;
         for s = 1:size(signaturesMat,1)
             score = score + norm(centroid - signaturesMat(s,:));
         end

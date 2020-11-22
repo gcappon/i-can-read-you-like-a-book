@@ -122,6 +122,9 @@ function clusters = divideSignatures(signatures)
         warning('Some signatures have not been assigned to a cluster.');    
     end
     
+    if( n > length(signatures) )
+        warning('Some signatures have been assigned to more than a cluster.');    
+    end
         
 end
     
