@@ -1,107 +1,40 @@
-function [bcs, wcs, flag] = readTheBook(data,verbose,plotMode)
+function summary = readTheBook(data)
     
     close all
 
     addpath(genpath('src'));
+    addpath(genpath('libs'));
     
-    if(verbose)
-        fprintf('Preprocessing CGM data...');
-        tic;
-    end
+    %Initialize the enviroment
+    environment = initEnvironment();
     
-    dataTransformed = transformToPeaks(data);
+    %Extract the traces
+    traces = findTraces(data,environment);
     
-    if(verbose)
-        time = toc;
-        fprintf(['DONE. (Elapsed time ' num2str(time/60) ' min)\n']);
-    end
+    %Extract the feature of each trace
+    features = extractFeatures(traces,environment);
     
-    if(verbose)
-        fprintf('Find the traces to be analyzed...');
-        tic;
-    end
     
-    traces = findTraces(dataTransformed);
     
-    if(verbose)
-        time = toc;
-        fprintf(['DONE. (Elapsed time ' num2str(time/60) ' min)\n']);
-    end
     
-    if(verbose)
-        fprintf('Computing the signature of each trace...');
-        tic;
-    end
+    %Up to this point, for each cluster I have the following useful
+    %features
+    %   - cvGlucose: to quantify noise 
+    %   - excursion, CHO, bolus to describe meal impact on glucose
+    %   - mealTime: to quatify the repetitiveness
     
-    signatures = cell(0);
-    for t = 1:length(traces)
-        signatures{t} = findSignature(traces{t});
-    end
-    signatures = normalizeSignatures(signatures,traces);
-    signaturesMat = signaturesToMat(signatures);
     
-    if(verbose)
-        time = toc;
-        fprintf(['DONE. (Elapsed time ' num2str(time/60) ' min)\n']);
-    end
+    %   - CHO: to quantify meal intake
     
-    if(verbose)
-        fprintf('Dividing signatures into clusters...');
-        tic;
-    end
+    %normalize excursion by CHO/I and and retain just excursion
+    features.excursion = features.excursion.*features.CHO./features.insulin;
+    features.insulin = [];
+    features.CHO = [];
     
-    clusters = divideSignatures(signatures);
+    %TODO: prune outliers 
     
-    if(verbose)
-        time = toc;
-        fprintf(['DONE. (Elapsed time ' num2str(time/60) ' min)\n']);
-    end
+    %Compute final summary the patient
+    summary = getSummary(features);
     
-    if(verbose && plotMode)
-        fprintf('Visualizing signatures into clusters...');
-        tic;
-    end
-    
-    if(verbose)
-        fprintf('Pruning cluster outliers...');
-        tic;
-    end
-    
-    [signaturesMat,clusters] = pruneClusterOutliers(signaturesMat,clusters);
-    nDays = floor(height(data)/288);
-    flag = size(signaturesMat,1) > nDays; % at least "two" good t per week
-    
-    if(verbose)
-        time = toc;
-        fprintf(['DONE. (Elapsed time ' num2str(time/60) ' min)\n']);
-    end
-    
-    if(verbose && plotMode)
-        fprintf('Visualizing signatures into clusters...');
-        tic;
-    end
-    
-    if(plotMode)
-        plotClusters(clusters,signaturesMat);
-    end
-    
-    if(verbose && plotMode)
-        time = toc;
-        fprintf(['DONE. (Elapsed time ' num2str(time/60) ' min)\n']);
-    end
-    
-    if(verbose)
-        fprintf('Computing predictability score...');
-        tic;
-    end
-    
-    [bcs, wcs] = computeScores(signaturesMat, clusters);
-    
-    if(verbose)
-        time = toc;
-        fprintf(['DONE. (Elapsed time ' num2str(time/60) ' min)\n']);
-    end
-    
-    disp(['Patient scores --> BC: ' num2str(bcs) ', WC: ' num2str(wcs)]);
 end
 

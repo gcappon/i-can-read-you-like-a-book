@@ -9,7 +9,7 @@ function [signaturesMat,clusters] = pruneClusterOutliers(signaturesMat,clusters)
     end
     
     for cn = 1:length(clusterNames)
-        if(length(clusters.(clusterNames{cn})) > 1)
+        if(length(clusters.(clusterNames{cn})) > 0)
             %1. Get the 5-95th prctiles
             prc5 = prctile(signaturesMat(clusters.(clusterNames{cn}),:),5);
             prc95 = prctile(signaturesMat(clusters.(clusterNames{cn}),:),95);
